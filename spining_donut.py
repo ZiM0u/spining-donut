@@ -5,11 +5,11 @@ from math import cos,sin
 WHITE = (255,255,255)
 BLACK = (0,0,0)
 
-RESOLUTION = W_HEIGHT,W_WIDTH = 600,400
+RESOLUTION = W_HEIGHT,W_WIDTH = 300,300
 FPS = 60
 
 #screen settings
-pixel_h= pixel_w = 15
+pixel_h= pixel_w = 7
 screen_h = int(W_WIDTH/pixel_w)
 screen_w = int(W_HEIGHT/pixel_h)
 screen_size = screen_h*screen_w
@@ -18,6 +18,8 @@ x_pixel=y_pixel = 0
 #rotation init
 A,B=0,0
 
+#lumination init
+chars = ".,-~:;=!*#$@"
 
 #Donut init
 theta_spacing = 7
@@ -33,7 +35,7 @@ pygame.init()
 window = pygame.display.set_mode(RESOLUTION)
 clock = pygame.time.Clock()
 pygame.display.set_caption("Spinning donut by ZiM0u")
-font = pygame.font.SysFont("Arial",20)
+font = pygame.font.SysFont("Arial",15)
 
 def text(value, x, y):
     txt = font.render(str(value),True,WHITE)
@@ -50,6 +52,7 @@ while continuer:
     window.fill(BLACK)
 
     output = [' ']*(screen_size)
+    zbuffer =[0]*(screen_size)
 
     #drawin donut
     for theta in range(0,628,theta_spacing):
@@ -89,6 +92,14 @@ while continuer:
             position = xp+screen_w*yp
 
             output[position]='*'
+
+            #luminance
+            L = cosphi * costheta * sinB - cosA * costheta * sinphi - sinA * sintheta + cosB *(cosA * sintheta - costheta * sinA * sinphi)
+
+            if ooz >zbuffer[position]:
+                zbuffer[position] = ooz#larger ooz means the pixel is closer to the viewer than what's already plotted
+                luminance_index = int(L*8) #by 8 to get luminance_index range 0 to 11 (8*sqrt(2) =11)
+                output[position] = chars[luminance_index if luminance_index >0 else 0]
     
     for y in range(1,screen_h+1):
         for x in range(1,screen_w+1):
